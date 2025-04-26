@@ -190,7 +190,7 @@ tr:hover {
 .timestamp-bar {
     color: #00ff9f;
     font-family: monospace;
-    margin: 20px 0;
+    margin: 0;
     text-align: left;
     font-size: 14px;
     display: flex;
@@ -199,25 +199,8 @@ tr:hover {
 
 .control-wrapper {
     display: flex;
-    justify-content: space-between;
+    padding: 15px 20px;
     align-items: center;
-    padding: 0 20px;
-    margin-bottom: 15px;
-}
-
-.btn-block {
-    background-color: #45f5ec;
-    color: black;
-    padding: 8px 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-family: monospace;
-    transition: background-color 0.3s;
-}
-
-.btn-block:hover {
-    background-color: #3cff22;
 }
 
 form {
@@ -288,10 +271,6 @@ form {
         <div class="status-indicator"></div>
         Last updated: <span id="timestamp">--:--:--</span>
     </div>
-  
-    <form action="/block" method="post" onsubmit="return confirm('Are you sure you want to block recent 50 IPs?')">
-        <button type="submit" class="btn-block">🚫 Block 50 Recent Threat IPs</button>
-    </form>
 </div>
   
 <div class="dashboard fade-in">
