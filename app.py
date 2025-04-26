@@ -53,17 +53,6 @@ def refresh_table():
         {% endfor %}
     """, threats=data)
 
-from block_urls import main as block_threats
-
-@app.route('/block', methods=['POST'])
-def block_threats_route():
-    try:
-        block_threats()
-        return render_template('block_result.html')
-    except Exception as e:
-        return f"❌ Blocking failed: {e}", 500
-
-
 if __name__ == '__main__':
     print("🚀 Starting Flask app...")
     app.run(debug=True)

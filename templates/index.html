@@ -290,9 +290,9 @@ form {
                 <td class="phish-id">{{ row[1] }}</td>
                 <td>
                     {% if row[2] == "online" %}
-                    <span class="status status-online"><i class="fas fa-exclamation-circle"></i> Active</span>
+                    <span class="status status-online"><i class="fas fa-exclamation-circle"></i>Active</span>
                     {% else %}
-                    <span class="status status-offline"><i class="fas fa-ban"></i> Inactive</span>
+                    <span class="status status-offline"><i class="fas fa-ban"></i>Inactive</span>
                     {% endif %}
                 </td>
                 <td><span class="target-badge">{{ row[3] }}</span></td>
@@ -328,7 +328,7 @@ form {
             .catch(err => console.error("Refresh failed:", err));
     }
 
-    setInterval(refreshTable, 60000);
+    setInterval(refreshTable, 30000);
 
     refreshTable();
 </script>

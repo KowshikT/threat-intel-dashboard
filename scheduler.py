@@ -1,7 +1,7 @@
 import time
 from fetcher.abusech import fetch_abusech_data
 
-FETCH_INTERVAL = 60  # every 1 minutes
+FETCH_INTERVAL = 30  # every 1 minutes
 
 def main():
     while True:
