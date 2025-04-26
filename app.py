@@ -59,10 +59,9 @@ from block_urls import main as block_threats
 def block_threats_route():
     try:
         block_threats()
-        return "✅ Blocking complete", 200
+        return render_template('block_result.html')
     except Exception as e:
-        return f"❌ Failed: {e}", 500
-
+        return f"❌ Blocking failed: {e}", 500
 
 
 if __name__ == '__main__':
