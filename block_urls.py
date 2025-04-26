@@ -12,7 +12,7 @@ def fetch_urls():
         database="threat_dashboard"
     )
     cursor = conn.cursor()
-    cursor.execute("SELECT url FROM phishing_urls ORDER BY id DESC ")
+    cursor.execute("SELECT url FROM phishing_urls ORDER BY id DESC LIMIT 50 ")
     rows = cursor.fetchall()
     cursor.close()
     conn.close()

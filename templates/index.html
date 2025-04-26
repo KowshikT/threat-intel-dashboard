@@ -45,6 +45,7 @@ header {
     background-color: rgba(0, 255, 159, 0.05);
     border-bottom: 1px solid rgba(0, 255, 159, 0.2);
     font-size: 0.9em;
+    align-items: center;
 }
 
 .threat-level {
@@ -67,6 +68,8 @@ header {
 
 .dashboard {
     padding: 20px;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .status-indicator {
@@ -78,6 +81,7 @@ header {
     margin-right: 8px;
     box-shadow: 0 0 8px #00ff9f;
     animation: pulse 2s infinite;
+    vertical-align: middle;
 }
 
 table {
@@ -86,12 +90,14 @@ table {
     margin-top: 20px;
     box-shadow: 0 0 15px rgba(0, 255, 159, 0.1);
     border: 1px solid rgba(0, 255, 159, 0.2);
+    table-layout: fixed;
 }
 
 th, td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid rgba(0, 255, 159, 0.2);
+    vertical-align: middle;
 }
 
 th {
@@ -124,11 +130,13 @@ tr:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 40%;
 }
 
 .phish-id {
     color: rgba(0, 255, 159, 0.7);
     font-size: 0.9em;
+    width: 20%;
 }
 
 .status {
@@ -160,10 +168,61 @@ tr:hover {
     border-radius: 4px;
     font-size: 0.9em;
     border: 1px solid rgba(0, 255, 204, 0.3);
+    display: inline-block;
+    text-align: center;
 }
 
 .fade-in {
     animation: fadeIn 0.5s ease-in;
+}
+
+.current_time {
+    display: flex;
+    align-items: center;
+}
+
+.threat-type {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timestamp-bar {
+    color: #00ff9f;
+    font-family: monospace;
+    margin: 20px 0;
+    text-align: left;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.control-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 15px;
+}
+
+.btn-block {
+    background-color: #45f5ec;
+    color: black;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: monospace;
+    transition: background-color 0.3s;
+}
+
+.btn-block:hover {
+    background-color: #3cff22;
+}
+
+form {
+    margin: 10px 20px 0;
+    text-align: right;
 }
 
 @keyframes fadeIn {
@@ -196,41 +255,10 @@ tr:hover {
     100% { opacity: 1; }
 }
 
-.last-update {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 .typing-effect:after {
     content: '|';
     animation: typing 1.2s infinite;
 }
-
-.timestamp-bar {
-  color: #00ff9f;
-  font-family: monospace;
-  margin-top: 10px;
-  text-align: left;
-  font-size: 14px;
-}
-
-.btn-block {
-  background-color: #45f5ec;
-  color: black;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: monospace;
-  margin-bottom: 15px;
-  float: right; /* 👈 this moves it right */
-}
-
-.btn-block:hover {
-  background-color: #3cff22;
-}
-
 
 @keyframes typing {
     0%, 100% { opacity: 1; }
@@ -255,15 +283,16 @@ tr:hover {
     </div>
 </div>
 
-<div id="last-updated" class="timestamp-bar">
-    <div class="status-indicator"></div>
-    Last updated: <span id="timestamp">--:--:--</span>
-</div>
+<div class="control-wrapper">
+    <div id="last-updated" class="timestamp-bar">
+        <div class="status-indicator"></div>
+        Last updated: <span id="timestamp">--:--:--</span>
+    </div>
   
-<form action="/block" method="post" onsubmit="return confirm('Are you sure you want to block these IPs?')">
-    <button type="submit" class="btn-block">🚫 Block All Threat IPs</button>
-  </form>
-
+    <form action="/block" method="post" onsubmit="return confirm('Are you sure you want to block these IPs?')">
+        <button type="submit" class="btn-block">🚫 Block All Threat IPs</button>
+    </form>
+</div>
   
 <div class="dashboard fade-in">
     <table>
