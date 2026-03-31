@@ -16,10 +16,10 @@ def get_db_data():
         )
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT url, phish_id, online, target
+            SELECT url, phish_id, online, threat_category
             FROM phishing_urls
             ORDER BY id DESC
-            LIMIT 50
+            LIMIT 100
         """)
         rows = cursor.fetchall()
         cursor.close()
@@ -41,23 +41,25 @@ def refresh_table():
     return render_template_string("""
         {% for row in threats %}
         <tr>
-            <td class="url-cell">{{ row[0] }}</td>
-            <td class="phish-id">{{ row[1] }}</td>
+            <td class="url-cell" title="{{ row[0] }}">{{ row[0] }}</td>
+            <td class="threat-id">{{ row[1] }}</td>
             <td>
                 {% if row[2] == "online" %}
-                    <span class="status status-online">
-                        <i class="fas fa-exclamation-circle"></i>Active
-                    </span>
+                <span class="status-badge status-active">
+                    <span class="status-dot-badge" style="background: #00c850;"></span>
+                    Active
+                </span>
                 {% else %}
-                    <span class="status status-offline">
-                        <i class="fas fa-ban"></i>Neutralized
-                    </span>
+                <span class="status-badge status-inactive">
+                    <span class="status-dot-badge" style="background: #ff6b6b;"></span>
+                    Inactive
+                </span>
                 {% endif %}
             </td>
-            <td><span class="target-badge">{{ row[3] }}</span></td>
+            <td><span class="category-tag">{{ row[3] }}</span></td>
             <td>
-                <button class="unblock-btn" data-url="{{ row[0] }}">
-                    Unblock
+                <button class="action-btn" data-url="{{ row[0] }}">
+                    <i class="fas fa-unlock"></i>Unblock
                 </button>
             </td>
         </tr>

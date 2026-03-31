@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS phishing_urls (
     url TEXT,
     phish_id VARCHAR(100),
     online VARCHAR(20),
-    target VARCHAR(100)
+    target VARCHAR(100),
+    source VARCHAR(50),
+    threat_category VARCHAR(100),
+    first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_url (url(255))
 );
 
