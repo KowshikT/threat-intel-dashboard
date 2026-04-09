@@ -7,6 +7,7 @@ import mysql.connector
 import mysql.connector.errors
 import socket
 from urllib.parse import urlparse
+from unblock_urls import block_url_in_ufw
 
 def resolve_ip(url):
     try:
@@ -21,9 +22,12 @@ def resolve_ip(url):
         return None
 
 def block_url_in_hosts(url):
-    """Add malicious domain to /etc/hosts file (requires sudo)"""
-    # Blocking is optional - keep processing even if it fails
-    pass
+    """Block URL using UFW firewall"""
+    success, message = block_url_in_ufw(url)
+    if success:
+        print(f"✅ {message}")
+    else:
+        print(f"⚠️ Blocking failed: {message}")
 
 def fetch_abusech_data():
     url = "https://urlhaus.abuse.ch/downloads/csv/"

@@ -12,13 +12,14 @@ def get_db_data():
             host='localhost',
             user='threat_user',
             password='koWsi67',
-            database='threat_dashboard'
+            database='threat_dashboard',
+            ssl_disabled=True
         )
         cursor = conn.cursor()
         cursor.execute("""
             SELECT url, phish_id, online, threat_category
             FROM phishing_urls
-            ORDER BY id DESC
+            ORDER BY first_seen DESC
             LIMIT 100
         """)
         rows = cursor.fetchall()
@@ -84,5 +85,13 @@ def unblock_route():
         print(f"[UNBLOCK ERROR] {e}")
         return jsonify({"success": False, "message": f"Server error: {e}"}), 500
 if __name__ == '__main__':
-    print("🚀 Starting Flask app...")
-    app.run(debug=True)
+    import sys
+    port = 5000
+    if '-p' in sys.argv:
+        try:
+            port = int(sys.argv[sys.argv.index('-p') + 1])
+        except (ValueError, IndexError):
+            print("Invalid port. Usage: python app.py [-p PORT]")
+            sys.exit(1)
+    print(f"🚀 Starting Flask app on port {port}...")
+    app.run(debug=True, port=port)

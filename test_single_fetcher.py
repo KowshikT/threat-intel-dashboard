@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-"""Test single fetcher in isolation"""
 import sys
 sys.path.insert(0, '/home/albatross/threat-intel-dashboard')
 
