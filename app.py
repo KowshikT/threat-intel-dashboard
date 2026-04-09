@@ -12,15 +12,14 @@ def get_db_data():
             host='localhost',
             user='threat_user',
             password='koWsi67',
-            database='threat_dashboard',
-            ssl_disabled=True
+            database='threat_dashboard'
         )
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT url, phish_id, online, threat_category
+            SELECT url, phish_id, online, target
             FROM phishing_urls
-            ORDER BY first_seen DESC
-            LIMIT 100
+            ORDER BY id DESC
+            LIMIT 50
         """)
         rows = cursor.fetchall()
         cursor.close()
@@ -42,25 +41,23 @@ def refresh_table():
     return render_template_string("""
         {% for row in threats %}
         <tr>
-            <td class="url-cell" title="{{ row[0] }}">{{ row[0] }}</td>
-            <td class="threat-id">{{ row[1] }}</td>
+            <td class="url-cell">{{ row[0] }}</td>
+            <td class="phish-id">{{ row[1] }}</td>
             <td>
                 {% if row[2] == "online" %}
-                <span class="status-badge status-active">
-                    <span class="status-dot-badge" style="background: #00c850;"></span>
-                    Active
-                </span>
+                    <span class="status status-online">
+                        <i class="fas fa-exclamation-circle"></i>Active
+                    </span>
                 {% else %}
-                <span class="status-badge status-inactive">
-                    <span class="status-dot-badge" style="background: #ff6b6b;"></span>
-                    Inactive
-                </span>
+                    <span class="status status-offline">
+                        <i class="fas fa-ban"></i>Neutralized
+                    </span>
                 {% endif %}
             </td>
-            <td><span class="category-tag">{{ row[3] }}</span></td>
+            <td><span class="target-badge">{{ row[3] }}</span></td>
             <td>
-                <button class="action-btn" data-url="{{ row[0] }}">
-                    <i class="fas fa-unlock"></i>Unblock
+                <button class="unblock-btn" data-url="{{ row[0] }}">
+                    Unblock
                 </button>
             </td>
         </tr>
@@ -85,13 +82,5 @@ def unblock_route():
         print(f"[UNBLOCK ERROR] {e}")
         return jsonify({"success": False, "message": f"Server error: {e}"}), 500
 if __name__ == '__main__':
-    import sys
-    port = 5000
-    if '-p' in sys.argv:
-        try:
-            port = int(sys.argv[sys.argv.index('-p') + 1])
-        except (ValueError, IndexError):
-            print("Invalid port. Usage: python app.py [-p PORT]")
-            sys.exit(1)
-    print(f"🚀 Starting Flask app on port {port}...")
-    app.run(debug=True, port=port)
+    print("🚀 Starting Flask app...")
+    app.run(debug=True)

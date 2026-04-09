@@ -4,10 +4,8 @@ import zipfile
 import io
 import csv
 import mysql.connector
-import mysql.connector.errors
 import socket
 from urllib.parse import urlparse
-from unblock_urls import block_url_in_ufw
 
 def resolve_ip(url):
     try:
@@ -21,13 +19,17 @@ def resolve_ip(url):
         print(f"❌ Couldn’t resolve {url}: {e}")
         return None
 
-def block_url_in_hosts(url):
-    """Block URL using UFW firewall"""
-    success, message = block_url_in_ufw(url)
-    if success:
-        print(f"✅ {message}")
-    else:
-        print(f"⚠️ Blocking failed: {message}")
+def block_url(url):
+    ip = resolve_ip(url)
+    if ip:
+        try:
+            subprocess.run(
+                ["sudo", "ufw", "deny", "out", "to", ip],
+                check=True
+            )
+            print(f"🛡️ Blocked IP {ip} for {url}")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Failed to block {url} with IP {ip}: {e}")
 
 def fetch_abusech_data():
     url = "https://urlhaus.abuse.ch/downloads/csv/"
@@ -40,85 +42,75 @@ def fetch_abusech_data():
         zip_content = io.BytesIO(response.content)
         with zipfile.ZipFile(zip_content) as archive:
             print("🧾 ZIP archive contains:")
-            csv_data = None
+            csv_file = None
             for name in archive.namelist():
                 print(f"   - {name}")
                 if name.endswith(".csv") or name.endswith(".txt"):
-                    csv_data = archive.read(name)
+                    csv_file = archive.open(name)
                     print("📥 Opened CSV file:", name)
                     break
 
-            if csv_data is None:
+            if csv_file is None:
                 print("❌ No CSV file found in ZIP archive.")
                 return
 
             print("📖 Reading CSV data...")
             row_count = 0
-            max_rows = 50
+            max_rows = 10  #
             
-            # Single connection for all operations  
-            db_conn = mysql.connector.connect(
-                host="localhost",
-                user="threat_user",
-                password="koWsi67",
-                database="threat_dashboard",
-                autocommit=False
+            #Use csv.DictReader for safe parsing
+            text_stream = io.TextIOWrapper(csv_file, encoding="utf-8", newline='')
+            reader = csv.reader(
+                (line for line in text_stream if not line.startswith("#")),
+                delimiter=",", quotechar='"'
             )
-            
-            # Parse CSV from bytes
-            text_stream = io.StringIO(csv_data.decode('utf-8'))
-            reader = csv.reader(text_stream, delimiter=",", quotechar='"')
 
-            try:
-                for row in reader:
-                    if not row or row[0].startswith("#"):
-                        continue
+            for row in reader:
+                if not row or row[0].startswith("#"):
+                    continue
 
-                    try:
-                        phish_id = row[0].strip()
-                        url_val = row[2].strip()
-                        url_status = row[3].strip()
-                        threat_type = row[5].strip() if len(row) > 5 else "unknown"
+                try:
+                    phish_id = row[0].strip()
+                    url_val = row[2].strip()
+                    url_status = row[3].strip()
+                    threat_type = row[5].strip()
 
-                        print(f"➡️ Processing: {url_val} [{threat_type}]")
+                    print(f"➡️ Processing row {row_count + 1}: {url_val} [{threat_type}]")
 
-                        # Use single connection with fresh cursor per operation
-                        db_cursor = db_conn.cursor(buffered=False)
-                        try:
-                            db_cursor.execute("""
-                                INSERT IGNORE INTO phishing_urls 
-                                (url, phish_id, online, target, source, threat_category)
-                                VALUES (%s, %s, %s, %s, %s, %s)""",
-                                (url_val, phish_id[:100], url_status, threat_type, "URLhaus", threat_type))
-                            db_conn.commit()
-                            rows_affected = db_cursor.rowcount
-                            if rows_affected > 0:
-                                print(f"✅ Inserted: {url_val}")
-                            else:
-                                print(f"⏭️ Skipped (duplicate): {url_val}")
-                            row_count += 1
-                        finally:
-                            db_cursor.close()
+                    
+                    conn = mysql.connector.connect(
+                        host="localhost",
+                        user="threat_user",
+                        password="koWsi67",
+                        database="threat_dashboard"
+                    )
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        INSERT INTO phishing_urls (url, phish_id, online, target)
+                        VALUES (%s, %s, %s, %s)""",
+                        (url_val, phish_id[:100], url_status, threat_type))
 
-                        block_url_in_hosts(url_val)
+                    if cursor.rowcount == 0:
+                        print(f"⚠️ Duplicate entry skipped: {phish_id}")
 
-                        if row_count >= max_rows:
-                            print("🛑 Stopping after 50 rows")
-                            break
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
 
-                    except mysql.connector.errors.ProgrammingError as pe:
-                        if "Unread result found" in str(pe):
-                            # Ignore unread result warnings - these are spurious
-                            # Just move to next URL
-                            print(f"⏭️ Skipped (internal state): {url_val}")
-                        else:
-                            print(f"⚠️ Skipping row due to error: {pe}")
-                    except Exception as insert_err:
-                        print(f"⚠️ Skipping row due to error: {insert_err}")
-            finally:
-                db_conn.close()
+                    
+                    block_url(url_val)
 
-            print(f"✅ URLhaus: Successfully processed {row_count} rows.")
+                    row_count += 1
+                    print(f"✅ Inserted and blocked: {url_val}")
+
+                    if row_count >= max_rows:
+                        print("🛑 Stopping after 10 rows (debug mode)")
+                        break
+
+                except Exception as insert_err:
+                    print(f"⚠️ Skipping row due to error: {insert_err}")
+
+            print(f"✅ Successfully processed {row_count} rows.")
 
     except Exception as fetch_err:
         print("❌ Error fetching Abuse.ch data:", fetch_err)

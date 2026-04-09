@@ -38,10 +38,7 @@ Scheduler: Custom Python background task
 ⚙️ Setup Instructions
 1️⃣ Clone the Repository
 
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-
-
-cd threat-intel-dashboard
+Then -> cd threat-intel-dashboard
 
 2️⃣ Create a Virtual Environment
 
@@ -132,53 +129,3 @@ Each domain is resolved to an IP
 IP is blocked using:
 
 ufw deny out to <IP>
-
-🔹 Dashboard Unblock Operation
-
-User clicks Unblock in the UI
-
-JavaScript sends a POST request to /unblock
-
-Flask calls unblock_url(url)
-
-Firewall rule is removed using:
-
-ufw delete deny out to <IP>
-
-UI updates instantly
-
-🔐 Security Considerations
-
-Uses a non-root database user
-
-Uses OS-level firewall (UFW) instead of application-level blocking
-
-Supports secure permission handling via sudoers
-
-Can be extended with authentication for production use
-
-📊 Future Enhancements
-
-📈 Threat analytics & visual charts
-
-👤 Authentication & role-based access
-
-📋 Unblock audit logging
-
-📤 CSV/PDF report export
-
-🌐 Multi-feed threat intelligence (PhishTank, VirusTotal, etc.)
-
-👤 Author
-
-Kowshik Thiruppathi
-Cybersecurity & Threat Intelligence Enthusiast
-GitHub: Add your GitHub profile link here
-
-If you want, I can also generate:
-
-A short ATS-friendly README
-
-A resume project description
-
-Or an architecture diagram next.
